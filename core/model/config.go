@@ -48,8 +48,8 @@ func DefaultMongoConfig() DatabaseConfig {
 	return DatabaseConfig{
 		Host:     "localhost",
 		Port:     27017,
-		User:     "root",
-		Password: "root",
+		User:     "",
+		Password: "",
 		Name:     "gcchrcore",
 	}
 }
