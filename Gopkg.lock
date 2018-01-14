@@ -9,6 +9,18 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/globalsign/mgo"
+  packages = [".","bson","internal/json","internal/sasl","internal/scram"]
+  revision = "5be15cc6a44937b6937a9487e1633f8a5fb25e4a"
+
+[[projects]]
+  name = "github.com/google/uuid"
+  packages = ["."]
+  revision = "064e2069ce9c359c118179501254f67d7d37ba24"
+  version = "0.2"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
   revision = "b3c9a1d25cfbbbab0ff4780b71c4f54e6e92a0de"
@@ -19,15 +31,9 @@
   packages = ["unix","windows"]
   revision = "810d7000345868fc619eb81f46307107118f4ae1"
 
-[[projects]]
-  branch = "v2"
-  name = "gopkg.in/mgo.v2"
-  packages = [".","bson","internal/json","internal/sasl","internal/scram"]
-  revision = "3f83fa5005286a7fe593b055f0d7771a7dce4655"
-
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9ba0245d865dd6fc746d2bb403989eb7237d977dc80846d76cf5e5076d7b9f3b"
+  inputs-digest = "bb0e2d0fed330618c5c4242294dde4b54422b7eca6994d1e868b1645989ebad0"
   solver-name = "gps-cdcl"
   solver-version = 1
