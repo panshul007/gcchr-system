@@ -44,12 +44,12 @@ type userValidator struct {
 	hmac       hash.HMAC
 	emailRegex *regexp.Regexp
 	pepper     string
-	logger     *logrus.Logger
+	logger     *logrus.Entry
 }
 
 var _ UserDB = &userValidator{}
 
-func newUserValidator(udb UserDB, logger *logrus.Logger, hmac hash.HMAC, pepper string) *userValidator {
+func newUserValidator(udb UserDB, logger *logrus.Entry, hmac hash.HMAC, pepper string) *userValidator {
 	return &userValidator{
 		UserDB:     udb,
 		hmac:       hmac,
@@ -73,10 +73,10 @@ type UserService interface {
 type userService struct {
 	UserDB
 	pepper string
-	logger *logrus.Logger
+	logger *logrus.Entry
 }
 
-func NewUserService(mgo *mgo.Session, logger *logrus.Logger, dbname, pepper, hmacKey string) UserService {
+func NewUserService(mgo *mgo.Session, logger *logrus.Entry, dbname, pepper, hmacKey string) UserService {
 	um := &userMongo{mgo, dbname, logger}
 	hmac := hash.NewHMAC(hmacKey)
 	uv := newUserValidator(um, logger, hmac, pepper)
@@ -104,7 +104,7 @@ func (us *userService) EnsureAdmin() {
 type userMongo struct {
 	mgo    *mgo.Session
 	dbname string
-	logger *logrus.Logger
+	logger *logrus.Entry
 }
 
 // To ensure that userMongo is implementing UserDB interface
