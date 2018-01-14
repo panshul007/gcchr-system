@@ -15,6 +15,24 @@ func main() {
 
 	fmt.Println("This is gcchr system core.")
 	fmt.Printf("%+v\n", config)
-	user := model.User{}
-	user.Create()
+
+	services, err := model.NewServices(
+		model.WithLogger(config.LogConfig),
+		model.WithMongoDB(config.MongoDB),
+		model.WithUserService(config.Pepper, config.HMACKey),
+	)
+	must(err)
+	defer services.Close()
+	ensureAdmin(services.User)
+}
+
+func ensureAdmin(us model.UserService) {
+	fmt.Println("Ensuring admin")
+	us.EnsureAdmin()
+}
+
+func must(err error) {
+	if err != nil {
+		panic(err)
+	}
 }
