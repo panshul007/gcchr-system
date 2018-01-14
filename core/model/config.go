@@ -31,7 +31,7 @@ type LogConfig struct {
 func DefaultLogConfig() LogConfig {
 	return LogConfig{
 		LogLevel:   DEBUG,
-		JsonFormat: true,
+		JsonFormat: false,
 		LogDir:     "",
 	}
 }
