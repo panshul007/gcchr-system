@@ -21,9 +21,9 @@ type User struct {
 	UserType     string        `json:"user_type" bson:"user_type"`
 	Name         string        `json:"name" bson:"name"`
 	Email        string        `json:"email" bson:"email"`
-	Password     string        `json:"password"`
+	Password     string        `json:"password" bson:"-"`
 	PasswordHash string        `json:"password_hash" bson:"password_hash"`
-	Remember     string        `json:"remember"`
+	Remember     string        `json:"remember" bson:"-"`
 	RememberHash string        `json:"remember_hash" bson:"remember_hash"`
 	Created      time.Time     `json:"created" bson:"created"`
 	Updated      time.Time     `json:"updated,omitempty" bson:"updated,omitempty"`
