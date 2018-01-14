@@ -28,7 +28,8 @@ func main() {
 
 func ensureAdmin(us model.UserService) {
 	fmt.Println("Ensuring admin")
-	us.EnsureAdmin()
+	err := us.EnsureAdmin()
+	must(err)
 }
 
 func must(err error) {
