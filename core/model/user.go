@@ -9,7 +9,6 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
-	"github.com/google/uuid"
 )
 
 const (
@@ -29,11 +28,12 @@ type User struct {
 	Created      time.Time     `json:"created" bson:"created"`
 	Updated      time.Time     `json:"updated,omitempty" bson:"updated,omitempty"`
 	LastLogin    time.Time     `json:"lastLogin,omitempty" bson:"lastLogin,omitempty"`
-	ProfileId    uuid.UUID     `json:"profileId,omitempty" bson:"profileId,omitempty"`
+	ProfileId    string        `json:"profileId,omitempty" bson:"profileId,omitempty"`
 }
 
 type UserDB interface {
 	// Single user fetch methods
+	ByEmail(email string) (*User, error)
 
 	// Data modifying methods
 	Create(user *User) error
@@ -91,14 +91,21 @@ func NewUserService(mgo *mgo.Session, logger *logrus.Entry, dbname, pepper, hmac
 }
 
 func (us *userService) EnsureAdmin() {
-	us.logger.Infoln("Ensuring Admin: admin@gcchr.com")
+	us.logger.Debugln("Ensuring Admin: admin@gcchr.com")
+	email := "admin@gcchr.com"
 	u := &User{
 		UserType: UserTypeAdmin,
-		Email:    "admin@gcchr.com",
+		Email:    email,
 		Password: "adminPass",
 		Created:  time.Now(),
 	}
-	us.UserDB.Create(u)
+	_, err := us.UserDB.ByEmail(email)
+	if err != nil {
+		us.logger.Debugln("Creating default admin user with email: ", email)
+		us.UserDB.Create(u)
+	} else {
+		us.logger.Debugln("Admin exists with email: ", email)
+	}
 }
 
 type userMongo struct {
@@ -116,6 +123,15 @@ func (um *userMongo) Create(user *User) error {
 	ses := um.mgo.Copy()
 	defer ses.Close()
 	return ses.DB(um.dbname).C(UserCollection).Insert(user)
+}
+
+func (um *userMongo) ByEmail(email string) (*User, error) {
+	um.logger.Debugln("Fetching user by email: ", email)
+	ses := um.mgo.Copy()
+	defer ses.Close()
+	u := User{}
+	err := ses.DB(um.dbname).C(UserCollection).Find(bson.M{"email": email}).One(&u)
+	return &u, err
 }
 
 type userValFunc func(user *User) error
