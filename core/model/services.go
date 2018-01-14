@@ -7,13 +7,14 @@ import (
 	"os"
 
 	"github.com/Sirupsen/logrus"
-	"gopkg.in/mgo.v2"
+	"github.com/globalsign/mgo"
 )
 
 type Services struct {
-	mgoSession *mgo.Session
-	mgo        *mgo.Database
-	logger     *logrus.Logger
+	mgoSession   *mgo.Session
+	databaseName string
+	logger       *logrus.Logger
+	User         UserService
 }
 
 func (s *Services) Close() {
@@ -35,18 +36,28 @@ type ServicesConfig func(*Services) error
 func WithMongoDB(dbConfig DatabaseConfig) ServicesConfig {
 	return func(s *Services) error {
 		serverAddr := fmt.Sprintf("%s:%d", dbConfig.Host, dbConfig.Port)
-		dialInfo := mgo.DialInfo{
-			Addrs:    []string{serverAddr},
-			Username: dbConfig.User,
-			Password: dbConfig.Password,
-			Database: dbConfig.Name,
+
+		var dialInfo mgo.DialInfo
+		if dbConfig.User != "" && dbConfig.Password != "" {
+			dialInfo = mgo.DialInfo{
+				Addrs:    []string{serverAddr},
+				Username: dbConfig.User,
+				Password: dbConfig.Password,
+				Database: dbConfig.Name,
+			}
+		} else {
+			dialInfo = mgo.DialInfo{
+				Addrs:    []string{serverAddr},
+				Database: dbConfig.Name,
+			}
 		}
+
 		session, err := mgo.DialWithInfo(&dialInfo)
 		if err != nil {
 			return err
 		}
 		s.mgoSession = session
-		s.mgo = session.DB(dbConfig.Name)
+		s.databaseName = "gcchrcore"
 		return nil
 	}
 }
@@ -74,6 +85,13 @@ func WithLogger(config LogConfig) ServicesConfig {
 			logRoot.Out = os.Stdout
 		}
 		s.logger = logRoot
+		return nil
+	}
+}
+
+func WithUserService(pepper, hmacKey string) ServicesConfig {
+	return func(s *Services) error {
+		s.User = NewUserService(s.mgoSession, s.logger, s.databaseName, pepper, hmacKey)
 		return nil
 	}
 }
