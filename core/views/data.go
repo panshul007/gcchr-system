@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"lenslocked.com/models"
+	"gcchr-system/core/models"
 )
 
 const (
