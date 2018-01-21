@@ -249,7 +249,7 @@ func (uv *userValidator) rememberHashRequired(user *User) error {
 }
 
 type UserService interface {
-	//Authenticate(email, password string) (*User, error)
+	Authenticate(email, password string) (*User, error)
 	EnsureAdmin() error
 	UserDB
 }
@@ -292,6 +292,25 @@ func (us *userService) EnsureAdmin() error {
 		us.logger.Debugln("Admin exists with email: ", email)
 	}
 	return nil
+}
+
+// Authenticate user with provided email and password.
+func (us *userService) Authenticate(email, password string) (*User, error) {
+	foundUser, err := us.ByEmail(email)
+	if err != nil {
+		return nil, err
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(foundUser.PasswordHash), []byte(password+us.pepper))
+	if err != nil {
+		switch err {
+		case bcrypt.ErrMismatchedHashAndPassword:
+			return nil, ErrPasswordIncorrect
+		default:
+			return nil, err
+		}
+	}
+	return foundUser, nil
 }
 
 type userMongo struct {
