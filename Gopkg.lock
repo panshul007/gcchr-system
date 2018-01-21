@@ -14,15 +14,45 @@
   revision = "5be15cc6a44937b6937a9487e1633f8a5fb25e4a"
 
 [[projects]]
-  name = "github.com/google/uuid"
+  name = "github.com/gorilla/context"
   packages = ["."]
-  revision = "064e2069ce9c359c118179501254f67d7d37ba24"
-  version = "0.2"
+  revision = "1ea25387ff6f684839d82767c1733ff4d4d15d0a"
+  version = "v1.1"
+
+[[projects]]
+  name = "github.com/gorilla/csrf"
+  packages = ["."]
+  revision = "69581736821c33d85bbf378f42f6ad864dbd85de"
+  version = "v1.5"
+
+[[projects]]
+  name = "github.com/gorilla/mux"
+  packages = ["."]
+  revision = "53c1911da2b537f792e7cafcb446b05ffe33b996"
+  version = "v1.6.1"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/gorilla/schema"
+  packages = ["."]
+  revision = "afe77393c53b66afe9212810d9b2013859d04ae6"
+
+[[projects]]
+  name = "github.com/gorilla/securecookie"
+  packages = ["."]
+  revision = "667fe4e3466a040b780561fe9b51a83a3753eefc"
+  version = "v1.1"
+
+[[projects]]
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
+  version = "v0.8.0"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/crypto"
-  packages = ["ssh/terminal"]
+  packages = ["bcrypt","blowfish","ssh/terminal"]
   revision = "b3c9a1d25cfbbbab0ff4780b71c4f54e6e92a0de"
 
 [[projects]]
@@ -34,6 +64,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "bb0e2d0fed330618c5c4242294dde4b54422b7eca6994d1e868b1645989ebad0"
+  inputs-digest = "19d418c910a2ca35ae6c4b5001544343ee8230f1d527900b6fe08b2a094ab480"
   solver-name = "gps-cdcl"
   solver-version = 1
