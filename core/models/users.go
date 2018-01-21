@@ -152,7 +152,7 @@ func (uv *userValidator) normalizeEmail(user *User) error {
 
 func (uv *userValidator) emailIsAvailable(user *User) error {
 	existing, err := uv.ByEmail(user.Email)
-	if err.Error() == MongoErrNotFound.Error() {
+	if err != nil && err.Error() == MongoErrNotFound.Error() {
 		// Email address is not taken
 		return nil
 	}
