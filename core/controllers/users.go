@@ -71,6 +71,7 @@ func (u *Users) signIn(w http.ResponseWriter, user *models.User) error {
 			return err
 		}
 		user.Remember = token
+		user.LastLogin = time.Now()
 		err = u.us.Update(user)
 	}
 	cookie := http.Cookie{
