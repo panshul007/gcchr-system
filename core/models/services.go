@@ -91,11 +91,11 @@ func WithLogger(config LogConfig) ServicesConfig {
 
 func WithUserService(pepper, hmacKey string) ServicesConfig {
 	return func(s *Services) error {
-		s.User = NewUserService(s.mgoSession, s.getContextLogger("UserService"), s.databaseName, pepper, hmacKey)
+		s.User = NewUserService(s.mgoSession, s.GetContextLogger("UserService"), s.databaseName, pepper, hmacKey)
 		return nil
 	}
 }
 
-func (s *Services) getContextLogger(context string) *logrus.Entry {
+func (s *Services) GetContextLogger(context string) *logrus.Entry {
 	return s.logger.WithField("context", context)
 }
