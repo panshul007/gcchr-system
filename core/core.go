@@ -3,7 +3,14 @@ package main
 import (
 	"flag"
 	"fmt"
+	"gcchr-system/core/controllers"
+	"gcchr-system/core/middleware"
 	"gcchr-system/core/models"
+	"gcchr-system/core/rand"
+	"net/http"
+
+	"github.com/gorilla/csrf"
+	"github.com/gorilla/mux"
 )
 
 func main() {
@@ -24,6 +31,31 @@ func main() {
 	must(err)
 	defer services.Close()
 	ensureAdmin(services.User)
+
+	r := mux.NewRouter()
+	staticC := controllers.NewStatic()
+	usersC := controllers.NewUsers(services.User, services.GetContextLogger("UserController"))
+
+	b, err := rand.Bytes(32)
+	must(err)
+	csrfMw := csrf.Protect(b, csrf.Secure(config.IsProd()))
+	userMw := middleware.User{UserService: services.User}
+	requireUserMw := middleware.RequireUser{User: userMw}
+
+	r.Handle("/", staticC.Home).Methods("GET")
+	r.Handle("/contact", staticC.Contact).Methods("GET")
+	r.Handle("/login", usersC.LoginView).Methods("GET")
+	r.HandleFunc("/login", usersC.Login).Methods("POST")
+	r.HandleFunc("/logout", requireUserMw.ApplyFunc(usersC.Logout)).Methods("POST")
+
+	// Assets
+	assetHandler := http.FileServer(http.Dir("./assets"))
+	assetHandler = http.StripPrefix("/assets/", assetHandler)
+	r.PathPrefix("/assets/").Handler(assetHandler)
+
+	fmt.Printf("Starting the server at port :%d...\n", config.Port)
+	// To apply the user middleware to all requests received.
+	http.ListenAndServe(fmt.Sprintf(":%d", config.Port), csrfMw(userMw.Apply(r)))
 }
 
 func ensureAdmin(us models.UserService) {
