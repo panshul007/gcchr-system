@@ -51,13 +51,13 @@ func (v *View) Render(w http.ResponseWriter, r *http.Request, data interface{}) 
 
 	// CSRF
 	csrfField := csrf.TemplateField(r)
-	tmplt := v.Template.Funcs(template.FuncMap{
+	template := v.Template.Funcs(template.FuncMap{
 		"csrfField": func() template.HTML {
 			return csrfField
 		},
 	})
 
-	if err := tmplt.ExecuteTemplate(&buf, v.Layout, vd); err != nil {
+	if err := template.ExecuteTemplate(&buf, v.Layout, vd); err != nil {
 		http.Error(w, AlertMessageGeneric, http.StatusInternalServerError)
 		return
 	}
