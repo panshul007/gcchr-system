@@ -35,6 +35,7 @@ func main() {
 	r := mux.NewRouter()
 	staticC := controllers.NewStatic()
 	usersC := controllers.NewUsers(services.User, services.GetContextLogger("UserController"))
+	adminC := controllers.NewAdmin(services.GetContextLogger("AdminController"))
 
 	b, err := rand.Bytes(32)
 	must(err)
@@ -47,6 +48,9 @@ func main() {
 	r.Handle("/login", usersC.LoginView).Methods("GET")
 	r.HandleFunc("/login", usersC.Login).Methods("POST")
 	r.HandleFunc("/logout", requireUserMw.ApplyFunc(usersC.Logout)).Methods("POST")
+
+	// Admin
+	r.Handle("/admin/dashboard", requireUserMw.ApplyFunc(adminC.Dashboard)).Methods("GET")
 
 	// Assets
 	assetHandler := http.FileServer(http.Dir("./assets"))
