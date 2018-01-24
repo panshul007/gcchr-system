@@ -61,7 +61,12 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// TODO: redirect to admin overview or by type
-	fmt.Fprintf(w, "Login sucessfull..!! with user: %+v", user)
+	switch user.UserType {
+	case models.UserTypeAdmin:
+		http.Redirect(w, r, "/admin/dashboard", http.StatusFound)
+	default:
+		fmt.Fprintf(w, "Login sucessfull..!! with user: %+v", user)
+	}
 }
 
 func (u *Users) signIn(w http.ResponseWriter, user *models.User) error {
