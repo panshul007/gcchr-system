@@ -50,7 +50,7 @@ func main() {
 	r.HandleFunc("/logout", requireUserMw.ApplyFunc(usersC.Logout)).Methods("POST")
 
 	// Admin
-	r.Handle("/admin/dashboard", requireUserMw.ApplyFunc(adminC.Dashboard)).Methods("GET")
+	r.HandleFunc("/admin/dashboard", requireUserMw.ApplyFunc(adminC.Dashboard)).Methods("GET")
 
 	// Assets
 	assetHandler := http.FileServer(http.Dir("./assets"))
