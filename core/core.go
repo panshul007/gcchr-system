@@ -51,9 +51,11 @@ func main() {
 
 	// Admin
 	r.HandleFunc("/admin/dashboard", requireUserMw.ApplyFunc(adminC.Dashboard)).Methods("GET")
+	r.HandleFunc("/newuser", requireUserMw.ApplyFunc(usersC.New)).Methods("GET")
+	r.HandleFunc("/newuser", requireUserMw.ApplyFunc(usersC.Create)).Methods("POST")
 
 	// Assets
-	assetHandler := http.FileServer(http.Dir("./assets"))
+	assetHandler := http.FileServer(http.Dir("./core/assets"))
 	assetHandler = http.StripPrefix("/assets/", assetHandler)
 	r.PathPrefix("/assets/").Handler(assetHandler)
 

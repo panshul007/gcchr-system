@@ -15,6 +15,7 @@ import (
 
 type Users struct {
 	LoginView *views.View
+	NewView   *views.View
 	us        models.UserService
 	logger    *logrus.Entry
 }
@@ -22,9 +23,56 @@ type Users struct {
 func NewUsers(us models.UserService, logger *logrus.Entry) *Users {
 	return &Users{
 		LoginView: views.NewView("bootstrap", "users/login"),
+		NewView:   views.NewView("bootstrap", "users/new"),
 		us:        us,
 		logger:    logger,
 	}
+}
+
+type NewUserForm struct {
+	Name     string `schema:"name"`
+	Email    string `schema:"email"`
+	Password string `schema:"password"`
+}
+
+// New to render the form to create new user
+// GET /newuser
+func (u *Users) New(w http.ResponseWriter, r *http.Request) {
+	var form NewUserForm
+	parseURLParams(r, &form)
+	u.NewView.Render(w, r, form)
+}
+
+// Create to process the new user form for creating new user
+// POST /newuser
+func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
+	var vd views.Data
+	var form NewUserForm
+	vd.Yield = &form
+	if err := parseForm(r, &form); err != nil {
+		u.logger.Errorln(err)
+		vd.SetAlert(err)
+		u.NewView.Render(w, r, vd)
+		return
+	}
+	user := models.User{
+		Name:     form.Name,
+		Email:    form.Email,
+		Password: form.Password,
+		UserType: models.UserTypePhysician,
+	}
+	if err := u.us.Create(&user); err != nil {
+		vd.SetAlert(err)
+		u.NewView.Render(w, r, vd)
+		return
+	}
+	u.logger.Infoln("User created successfully, redirecting...")
+	alert := views.Alert{
+		Level:   views.AlertLevelSuccess,
+		Message: fmt.Sprintf("User for %s created successfully.", user.Name),
+	}
+
+	views.RedirectAlert(w, r, "/admin/dashboard", http.StatusFound, alert)
 }
 
 type LoginForm struct {
