@@ -10,6 +10,8 @@ import (
 
 	"gcchr-system/core/rand"
 
+	"errors"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
@@ -24,6 +26,19 @@ const (
 )
 
 type UserType string
+
+func UserTypeFromValue(value string) (UserType, error) {
+	switch value {
+	case "admin":
+		return UserTypeAdmin, nil
+	case "physician":
+		return UserTypePhysician, nil
+	case "staff":
+		return UserTypeStaff, nil
+	default:
+		return "", errors.New("invalid user type")
+	}
+}
 
 type User struct {
 	Id           bson.ObjectId `json:"id,omitempty" bson:"_id,omitempty"`

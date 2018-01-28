@@ -30,9 +30,11 @@ func NewUsers(us models.UserService, logger *logrus.Entry) *Users {
 }
 
 type NewUserForm struct {
-	Name     string `schema:"name"`
-	Email    string `schema:"email"`
-	Password string `schema:"password"`
+	Name            string          `schema:"name"`
+	Email           string          `schema:"email"`
+	Password        string          `schema:"password"`
+	UserType        models.UserType `schema:"user_type"`
+	UserTypeOptions []models.UserType
 }
 
 // New to render the form to create new user
@@ -40,6 +42,7 @@ type NewUserForm struct {
 func (u *Users) New(w http.ResponseWriter, r *http.Request) {
 	var form NewUserForm
 	parseURLParams(r, &form)
+	form.UserTypeOptions = []models.UserType{models.UserTypeAdmin, models.UserTypePhysician}
 	u.NewView.Render(w, r, form)
 }
 
@@ -55,11 +58,12 @@ func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 		u.NewView.Render(w, r, vd)
 		return
 	}
+
 	user := models.User{
 		Name:     form.Name,
 		Email:    form.Email,
 		Password: form.Password,
-		UserType: models.UserTypePhysician,
+		UserType: form.UserType,
 	}
 	if err := u.us.Create(&user); err != nil {
 		vd.SetAlert(err)
