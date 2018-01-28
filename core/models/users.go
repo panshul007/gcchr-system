@@ -17,13 +17,17 @@ import (
 )
 
 const (
-	UserCollection = "user"
-	UserTypeAdmin  = "admin"
+	UserCollection             = "user"
+	UserTypeAdmin     UserType = "admin"
+	UserTypePhysician UserType = "physician"
+	UserTypeStaff     UserType = "staff"
 )
+
+type UserType string
 
 type User struct {
 	Id           bson.ObjectId `json:"id,omitempty" bson:"_id,omitempty"`
-	UserType     string        `json:"user_type" bson:"user_type"`
+	UserType     UserType      `json:"user_type" bson:"user_type"`
 	Name         string        `json:"name" bson:"name"`
 	Email        string        `json:"email" bson:"email"`
 	Password     string        `json:"password" bson:"-"`
@@ -33,6 +37,8 @@ type User struct {
 	Created      time.Time     `json:"created" bson:"created"`
 	Updated      time.Time     `json:"updated,omitempty" bson:"updated,omitempty"`
 	LastLogin    time.Time     `json:"lastLogin,omitempty" bson:"lastLogin,omitempty"`
+	Contact      Contact       `json:"contact,omitempty" bson:"contact,omitempty"`
+	Addresses    []Address     `json:"addresses,omitempty" bson:"addresses,omitempty"`
 	ProfileId    string        `json:"profileId,omitempty" bson:"profileId,omitempty"`
 }
 
@@ -71,7 +77,7 @@ func newUserValidator(udb UserDB, logger *logrus.Entry, hmac hash.HMAC, pepper s
 func (uv *userValidator) Create(user *User) error {
 	if err := runUserValFuncs(user, uv.passwordRequired, uv.passwordMinLength, uv.bcryptPassword,
 		uv.passwordHashRequired, uv.setRememberIfUnset, uv.rememberMinBytes, uv.hmacRemember, uv.rememberHashRequired,
-		uv.requireEmail, uv.normalizeEmail, uv.emailFormat, uv.emailIsAvailable); err != nil {
+		uv.requireEmail, uv.normalizeEmail, uv.emailFormat, uv.emailIsAvailable, uv.ensureCreatedAt); err != nil {
 		return err
 	}
 	return uv.UserDB.Create(user)
@@ -81,7 +87,7 @@ func (uv *userValidator) Create(user *User) error {
 // provided in the user object.
 func (uv *userValidator) Update(user *User) error {
 	if err := runUserValFuncs(user, uv.passwordMinLength, uv.bcryptPassword, uv.passwordHashRequired, uv.rememberMinBytes,
-		uv.hmacRemember, uv.rememberHashRequired, uv.normalizeEmail, uv.emailFormat, uv.emailIsAvailable); err != nil {
+		uv.hmacRemember, uv.rememberHashRequired, uv.normalizeEmail, uv.emailFormat, uv.emailIsAvailable, uv.ensureUpdatedAt); err != nil {
 		return err
 	}
 	user.Updated = time.Now()
@@ -128,6 +134,18 @@ func (uv *userValidator) isValidId(id string) error {
 		return nil
 	}
 	return ErrIDInvalid
+}
+
+func (uv *userValidator) ensureCreatedAt(user *User) error {
+	if user.Created.IsZero() {
+		user.Created = time.Now()
+	}
+	return nil
+}
+
+func (uv *userValidator) ensureUpdatedAt(user *User) error {
+	user.Updated = time.Now()
+	return nil
 }
 
 func (uv *userValidator) requireEmail(user *User) error {
