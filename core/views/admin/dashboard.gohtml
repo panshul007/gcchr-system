@@ -2,5 +2,43 @@
 <div class="row">
     Welcome to the Admin Dashboard! <br/>
     <a href="/newuser">Create a new physician user</a>
+
+    <div class="row">
+        <div class="col-md-5">
+            {{template "physicianList"}}
+        </div>
+        <div class="col-md-2"></div>
+        <div class="col-md-5"></div>
+    </div>
+
 </div>
+{{end}}
+
+{{define "physicianList"}}
+
+<div class="row" id="phylistrow">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Sample Physician 1</td>
+                <td><a href="#">Details</a></td>
+            </tr>
+            <tr>
+                <td>Sample Physician 2</td>
+                <td><a href="#">Details</a></td>
+            </tr>
+            <tr>
+                <td>Sample Physician 3</td>
+                <td><a href="#">Details</a></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
 {{end}}
