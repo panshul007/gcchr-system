@@ -30,11 +30,11 @@ func NewUsers(us models.UserService, logger *logrus.Entry) *Users {
 }
 
 type NewUserForm struct {
-	Name            string          `schema:"name"`
-	Email           string          `schema:"email"`
-	Password        string          `schema:"password"`
-	UserType        models.UserType `schema:"user_type"`
-	UserTypeOptions []models.UserType
+	Name            string            `schema:"name"`
+	Username        string            `schema:"username"`
+	Password        string            `schema:"password"`
+	UserType        models.UserType   `schema:"user_type"`
+	UserTypeOptions []models.UserType `scheme:"user_type_options"`
 }
 
 // New to render the form to create new user
@@ -52,6 +52,7 @@ func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 	var vd views.Data
 	var form NewUserForm
 	vd.Yield = &form
+	form.UserTypeOptions = []models.UserType{models.UserTypeAdmin, models.UserTypePhysician}
 	if err := parseForm(r, &form); err != nil {
 		u.logger.Errorln(err)
 		vd.SetAlert(err)
@@ -61,7 +62,7 @@ func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 
 	user := models.User{
 		Name:     form.Name,
-		Email:    form.Email,
+		Username: form.Username,
 		Password: form.Password,
 		UserType: form.UserType,
 	}
@@ -80,7 +81,7 @@ func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 type LoginForm struct {
-	Email    string `schema:"email"`
+	Username string `schema:"username"`
 	Password string `schema:"password"`
 }
 
@@ -94,11 +95,11 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 		u.LoginView.Render(w, r, vd)
 		return
 	}
-	user, err := u.us.Authenticate(form.Email, form.Password)
+	user, err := u.us.Authenticate(form.Username, form.Password)
 	if err != nil {
-		switch err {
-		case models.MongoErrNotFound:
-			vd.AlertError("Invalid email address")
+		switch err.Error() {
+		case models.MongoErrNotFound.Error():
+			vd.AlertError("Invalid username")
 		default:
 			vd.SetAlert(err)
 		}
