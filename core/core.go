@@ -6,10 +6,8 @@ import (
 	"gcchr-system/core/controllers"
 	"gcchr-system/core/middleware"
 	"gcchr-system/core/models"
-	"gcchr-system/core/rand"
 	"net/http"
 
-	"github.com/gorilla/csrf"
 	"github.com/gorilla/mux"
 )
 
@@ -37,9 +35,9 @@ func main() {
 	usersC := controllers.NewUsers(services.User, services.GetContextLogger("UserController"))
 	adminC := controllers.NewAdmin(services.GetContextLogger("AdminController"))
 
-	b, err := rand.Bytes(32)
+	//b, err := rand.Bytes(32)
 	must(err)
-	csrfMw := csrf.Protect(b, csrf.Secure(config.IsProd()))
+	//csrfMw := csrf.Protect(b, csrf.Secure(config.IsProd()))
 	userMw := middleware.User{UserService: services.User}
 	requireUserMw := middleware.RequireUser{User: userMw}
 
@@ -61,7 +59,7 @@ func main() {
 
 	fmt.Printf("Starting the server at port :%d...\n", config.Port)
 	// To apply the user middleware to all requests received.
-	http.ListenAndServe(fmt.Sprintf(":%d", config.Port), csrfMw(userMw.Apply(r)))
+	http.ListenAndServe(fmt.Sprintf(":%d", config.Port), userMw.Apply(r))
 }
 
 func ensureAdmin(us models.UserService) {
