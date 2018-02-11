@@ -33,7 +33,7 @@ func main() {
 	r := mux.NewRouter()
 	staticC := controllers.NewStatic()
 	usersC := controllers.NewUsers(services.User, services.GetContextLogger("UserController"))
-	adminC := controllers.NewAdmin(services.GetContextLogger("AdminController"))
+	adminC := controllers.NewAdmin(services.User, services.GetContextLogger("AdminController"))
 
 	//b, err := rand.Bytes(32)
 	must(err)
