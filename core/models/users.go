@@ -63,6 +63,9 @@ type UserDB interface {
 	ById(id string) (*User, error)
 	ByRemember(token string) (*User, error)
 
+	// List of users fetch methods
+	ByUserType(userType UserType) ([]User, error)
+
 	// Data modifying methods
 	Create(user *User) error
 	Update(user *User) error
@@ -425,6 +428,17 @@ func (um *userMongo) ByRemember(token string) (*User, error) {
 	u := User{}
 	err := ses.DB(um.dbname).C(UserCollection).Find(bson.M{"remember_hash": token}).One(&u)
 	return &u, err
+}
+
+// TODO: implement paging
+func (um *userMongo) ByUserType(userType UserType) ([]User, error) {
+	um.logger.Debugln("Fetching users by user type: ", userType)
+	ses := um.mgo.Copy()
+	defer ses.Close()
+	var users []User
+	err := ses.DB(um.dbname).C(UserCollection).Find(bson.M{"user_type": userType}).All(&users)
+	um.logger.Debugf("Fetched %d users of type %s", len(users), userType)
+	return users, err
 }
 
 type userValFunc func(user *User) error
