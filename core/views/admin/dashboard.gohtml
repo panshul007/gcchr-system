@@ -1,0 +1,86 @@
+{{define "yield"}}
+<div class="row justify-content-center">
+    <h3>Welcome to the Admin Dashboard!</h3>
+</div>
+<div class="row">
+    <div class="col-md-1"></div>
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-header">
+                <h5>Physicians</h5>
+            </div>
+            <div class="card-body">
+                {{template "physicianList" .}}
+            </div>
+            <div class="card-footer text-right">
+                <a href="/newuser" class="btn btn-primary">Add new</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-header">
+                <h5>Staff</h5>
+            </div>
+            <div class="card-body">
+                {{template "staffList"}}
+            </div>
+            <div class="card-footer text-right">
+                <a href="/newuser" class="btn btn-primary">Add new</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-1"></div>
+</div>
+
+
+{{end}}
+
+{{define "physicianList"}}
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Physicians}}
+            <tr>
+                <td>{{.Name}}</td>
+                <td><a href="#">Details</a></td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+
+{{end}}
+
+{{define "staffList"}}
+
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Details</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Sample Staff 1</td>
+        <td><a href="#">Details</a></td>
+    </tr>
+    <tr>
+        <td>Sample Staff 2</td>
+        <td><a href="#">Details</a></td>
+    </tr>
+    <tr>
+        <td>Sample Staff 3</td>
+        <td><a href="#">Details</a></td>
+    </tr>
+    </tbody>
+</table>
+
+{{end}}
