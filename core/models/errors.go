@@ -8,7 +8,7 @@ const (
 	ErrPasswordIncorrect modelError = "models: incorrect password provided"
 	ErrEmailRequired     modelError = "models: email address is required"
 	ErrUsernameRequired  modelError = "models: username is required"
-	ErrUsertypeRequired  modelError = "models: user type is required"
+	ErrUserRoleRequired  modelError = "models: user role is required"
 	ErrEmailInvalid      modelError = "models: email address is not valid"
 	ErrEmailTaken        modelError = "models: email address is already taken"
 	ErrUsernameTaken     modelError = "models: username is already taken"

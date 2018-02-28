@@ -10,8 +10,6 @@ import (
 
 	"gcchr-system/core/rand"
 
-	"errors"
-
 	"github.com/Sirupsen/logrus"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
@@ -20,29 +18,21 @@ import (
 
 const (
 	UserCollection             = "user"
-	UserTypeAdmin     UserType = "admin"
-	UserTypePhysician UserType = "physician"
-	UserTypeStaff     UserType = "staff"
+	UserRoleAdmin     UserRole = "admin"
+	UserRolePhysician UserRole = "physician"
+	UserRoleStaff     UserRole = "staff"
+	UserRoleReception UserRole = "reception"
 )
 
-type UserType string
+type UserRole string
 
-func UserTypeFromValue(value string) (UserType, error) {
-	switch value {
-	case "admin":
-		return UserTypeAdmin, nil
-	case "physician":
-		return UserTypePhysician, nil
-	case "staff":
-		return UserTypeStaff, nil
-	default:
-		return "", errors.New("invalid user type")
-	}
+func UserRolesList() []UserRole {
+	return []UserRole{UserRoleAdmin, UserRolePhysician, UserRoleStaff, UserRoleReception}
 }
 
 type User struct {
 	Id           bson.ObjectId `json:"id,omitempty" bson:"_id,omitempty"`
-	UserType     UserType      `json:"user_type" bson:"user_type"`
+	UserRoles    []UserRole    `json:"user_roles" bson:"user_roles"`
 	Name         string        `json:"name" bson:"name"`
 	Username     string        `json:"username" bson:"username"`
 	Password     string        `json:"password" bson:"-"`
@@ -64,7 +54,7 @@ type UserDB interface {
 	ByRemember(token string) (*User, error)
 
 	// List of users fetch methods
-	ByUserType(userType UserType) ([]User, error)
+	ByUserRole(userRole UserRole) ([]User, error)
 
 	// Data modifying methods
 	Create(user *User) error
@@ -95,7 +85,7 @@ func newUserValidator(udb UserDB, logger *logrus.Entry, hmac hash.HMAC, pepper s
 func (uv *userValidator) Create(user *User) error {
 	if err := runUserValFuncs(user, uv.passwordRequired, uv.passwordMinLength, uv.bcryptPassword,
 		uv.passwordHashRequired, uv.setRememberIfUnset, uv.rememberMinBytes, uv.hmacRemember, uv.rememberHashRequired,
-		uv.requireUsername, uv.usernameIsAvailable, uv.requireUserType, uv.ensureCreatedAt); err != nil {
+		uv.requireUsername, uv.usernameIsAvailable, uv.requireUserRoles, uv.ensureCreatedAt); err != nil {
 		return err
 	}
 	return uv.UserDB.Create(user)
@@ -105,7 +95,7 @@ func (uv *userValidator) Create(user *User) error {
 // provided in the user object.
 func (uv *userValidator) Update(user *User) error {
 	if err := runUserValFuncs(user, uv.passwordMinLength, uv.bcryptPassword, uv.passwordHashRequired, uv.rememberMinBytes,
-		uv.hmacRemember, uv.rememberHashRequired, uv.usernameIsAvailable, uv.requireUserType, uv.ensureUpdatedAt); err != nil {
+		uv.hmacRemember, uv.rememberHashRequired, uv.usernameIsAvailable, uv.requireUserRoles, uv.ensureUpdatedAt); err != nil {
 		return err
 	}
 	user.Updated = time.Now()
@@ -173,9 +163,9 @@ func (uv *userValidator) requireUsername(user *User) error {
 	return nil
 }
 
-func (uv *userValidator) requireUserType(user *User) error {
-	if user.UserType == "" {
-		return ErrUsertypeRequired
+func (uv *userValidator) requireUserRoles(user *User) error {
+	if len(user.UserRoles) == 0 {
+		return ErrUserRoleRequired
 	}
 	return nil
 }
@@ -341,11 +331,11 @@ func (us *userService) EnsureAdmin() error {
 	us.logger.Debugln("Ensuring Admin with username: admin")
 	username := "admin"
 	u := &User{
-		UserType: UserTypeAdmin,
-		Username: username,
-		Name:     "GCCHR Admin",
-		Password: "adminPass",
-		Created:  time.Now(),
+		UserRoles: []UserRole{UserRoleAdmin},
+		Username:  username,
+		Name:      "GCCHR Admin",
+		Password:  "adminPass",
+		Created:   time.Now(),
 	}
 	_, err := us.UserDB.ByUsername(username)
 	if err != nil {
@@ -431,13 +421,13 @@ func (um *userMongo) ByRemember(token string) (*User, error) {
 }
 
 // TODO: implement paging
-func (um *userMongo) ByUserType(userType UserType) ([]User, error) {
-	um.logger.Debugln("Fetching users by user type: ", userType)
+func (um *userMongo) ByUserRole(userRole UserRole) ([]User, error) {
+	um.logger.Debugln("Fetching users by user role: ", userRole)
 	ses := um.mgo.Copy()
 	defer ses.Close()
 	var users []User
-	err := ses.DB(um.dbname).C(UserCollection).Find(bson.M{"user_type": userType}).All(&users)
-	um.logger.Debugf("Fetched %d users of type %s", len(users), userType)
+	err := ses.DB(um.dbname).C(UserCollection).Find(bson.M{"user_roles": userRole}).All(&users)
+	um.logger.Debugf("Fetched %d users of type %s", len(users), userRole)
 	return users, err
 }
 
