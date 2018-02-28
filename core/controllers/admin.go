@@ -31,7 +31,7 @@ type AdminDashboardData struct {
 // GET /admin/dashboard
 func (a *Admin) Dashboard(w http.ResponseWriter, r *http.Request) {
 	a.logger.Infoln("Rendering admin dashboard")
-	physicians, err := a.us.ByUserType(models.UserTypePhysician)
+	physicians, err := a.us.ByUserRole(models.UserRolePhysician)
 	if err != nil {
 		a.logger.Errorf("Error while fetching physicians: %+v", err)
 		http.Error(w, "Something went wrong while fetching Physicians.", http.StatusInternalServerError)

@@ -30,11 +30,11 @@ func NewUsers(us models.UserService, logger *logrus.Entry) *Users {
 }
 
 type NewUserForm struct {
-	Name            string            `schema:"name"`
-	Username        string            `schema:"username"`
-	Password        string            `schema:"password"`
-	UserType        models.UserType   `schema:"user_type"`
-	UserTypeOptions []models.UserType `scheme:"user_type_options"`
+	Name             string            `schema:"name"`
+	Username         string            `schema:"username"`
+	Password         string            `schema:"password"`
+	UserRoles        []models.UserRole `schema:"user_roles"`
+	UserRolesOptions []models.UserRole `scheme:"user_type_options"`
 }
 
 // New to render the form to create new user
@@ -42,7 +42,7 @@ type NewUserForm struct {
 func (u *Users) New(w http.ResponseWriter, r *http.Request) {
 	var form NewUserForm
 	parseURLParams(r, &form)
-	form.UserTypeOptions = []models.UserType{models.UserTypeAdmin, models.UserTypePhysician}
+	form.UserRolesOptions = models.UserRolesList()
 	u.NewView.Render(w, r, form)
 }
 
@@ -52,7 +52,7 @@ func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 	var vd views.Data
 	var form NewUserForm
 	vd.Yield = &form
-	form.UserTypeOptions = []models.UserType{models.UserTypeAdmin, models.UserTypePhysician}
+	form.UserRolesOptions = models.UserRolesList()
 	if err := parseForm(r, &form); err != nil {
 		u.logger.Errorln(err)
 		vd.SetAlert(err)
@@ -61,10 +61,10 @@ func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user := models.User{
-		Name:     form.Name,
-		Username: form.Username,
-		Password: form.Password,
-		UserType: form.UserType,
+		Name:      form.Name,
+		Username:  form.Username,
+		Password:  form.Password,
+		UserRoles: form.UserRoles,
 	}
 	if err := u.us.Create(&user); err != nil {
 		vd.SetAlert(err)
@@ -114,10 +114,9 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// TODO: redirect to admin overview or by type
-	switch user.UserType {
-	case models.UserTypeAdmin:
+	if userRoleExists(models.UserRoleAdmin, user.UserRoles) {
 		http.Redirect(w, r, "/admin/dashboard", http.StatusFound)
-	default:
+	} else {
 		fmt.Fprintf(w, "Login sucessfull..!! with user: %+v", user)
 	}
 }
@@ -156,4 +155,13 @@ func (u *Users) Logout(w http.ResponseWriter, r *http.Request) {
 	user.Remember = token
 	u.us.Update(user)
 	http.Redirect(w, r, "/", http.StatusFound)
+}
+
+func userRoleExists(role models.UserRole, roles []models.UserRole) bool {
+	for _, r := range roles {
+		if r == role {
+			return true
+		}
+	}
+	return false
 }
