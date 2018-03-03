@@ -430,14 +430,3 @@ func (um *userMongo) ByUserRole(userRole UserRole) ([]User, error) {
 	um.logger.Debugf("Fetched %d users of type %s", len(users), userRole)
 	return users, err
 }
-
-type userValFunc func(user *User) error
-
-func runUserValFuncs(user *User, fns ...userValFunc) error {
-	for _, fn := range fns {
-		if err := fn(user); err != nil {
-			return err
-		}
-	}
-	return nil
-}
