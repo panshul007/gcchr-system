@@ -31,8 +31,7 @@ type Patient struct {
 type PagedResponse struct {
 	Patients []Patient
 	Total    int
-	Page     int
-	PageSize int
+	PageInfo PageInfo
 }
 
 type PatientDB interface {
@@ -124,4 +123,25 @@ func (pm *patientMongo) ById(id string) (*Patient, error) {
 	p := Patient{}
 	err := ses.DB(pm.dbname).C(PatientCollection).FindId(bson.ObjectIdHex(id)).One(&p)
 	return &p, err
+}
+
+// TODO: validate pageInfo
+func (pm *patientMongo) All(pageInfo PageInfo) (*PagedResponse, error) {
+	ses := pm.mgo.Copy()
+	defer ses.Close()
+	skips := pageInfo.PageSize * (pageInfo.Page - 1)
+	var patients []Patient
+	err := ses.DB(pm.dbname).C(PatientCollection).Find(bson.M{}).Skip(skips).Limit(pageInfo.PageSize).All(&patients)
+	if err != nil {
+		return nil, err
+	}
+	total, err := ses.DB(pm.dbname).C(PatientCollection).Find(bson.M{}).Count()
+	if err != nil {
+		return nil, err
+	}
+	return &PagedResponse{
+		Patients: patients,
+		Total:    total,
+		PageInfo: pageInfo,
+	}, nil
 }
