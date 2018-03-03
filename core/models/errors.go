@@ -21,6 +21,9 @@ const (
 	ErrRememberTokenRequired privateError = "models: remember token is required"
 	ErrUserIDRequired        privateError = "models: user ID is required"
 
+	// Patient Errors
+	ErrPatientNameRequired modelError = "models: patient name is required"
+
 	MongoErrNotFound mongoError = "not found"
 )
 
