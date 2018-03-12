@@ -20,3 +20,18 @@
 #  name = "github.com/x/y"
 #  version = "2.4.0"
 
+[[constraint]]
+  name = "github.com/gorilla/mux"
+  version = "1.6.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/gorilla/schema"
+
+[[constraint]]
+  branch = "master"
+  name = "golang.org/x/crypto"
+
+[[override]]
+  branch = "master"
+  name = "github.com/google/uuid"
