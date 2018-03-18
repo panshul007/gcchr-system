@@ -5,6 +5,8 @@ import (
 	"gcchr-system/core/views"
 	"net/http"
 
+	"strconv"
+
 	"github.com/Sirupsen/logrus"
 )
 
@@ -23,6 +25,10 @@ func NewPatientManagement(ps models.PatientService, logger *logrus.Entry) *Patie
 }
 
 type PatientManagementData struct {
+	PatientList PatientList
+}
+
+type PatientList struct {
 	Patients      []models.Patient
 	TotalPatients int
 	Page          int
@@ -38,11 +44,14 @@ func (pm *PatientManagement) Index(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Something went wrong while fetching patients.", http.StatusInternalServerError)
 	}
 	pm.logger.Debugf("Fetched %d patients\n", len(patientsPaged.Patients))
-	portalData := PatientManagementData{
+	patientList := PatientList{
 		Patients:      patientsPaged.Patients,
 		TotalPatients: patientsPaged.Total,
 		Page:          patientsPaged.PageInfo.Page,
 		PageSize:      patientsPaged.PageInfo.PageSize,
+	}
+	portalData := PatientManagementData{
+		PatientList: patientList,
 	}
 	var vd views.Data
 	vd.Yield = portalData
@@ -50,9 +59,35 @@ func (pm *PatientManagement) Index(w http.ResponseWriter, r *http.Request) {
 }
 
 // GET /patient/list/:page
-func (pm *PatientManagement) PatientListPage(w http.ResponseWriter, r *http.Request) {
-	page := 2
-	pageSize := 10
-	pm.logger.Debugf("Fetching patient list page: %d pageSize: %d\n", page, pageSize)
+func (pm *PatientManagement) PatientListByPage(w http.ResponseWriter, r *http.Request) {
 
+}
+
+func (pm *PatientManagement) getPatientListPage(w http.ResponseWriter, r *http.Request) (*PatientList, error) {
+	pageInfo, err := pm.getPageParamsFromQuery(r)
+
+	if err != nil {
+		return nil, err
+	}
+
+	pm.logger.Debugf("Fetching patient list page: %d pageSize: %d\n", pageInfo.Page, pageInfo.PageSize)
+	return nil, nil
+}
+
+func (pm *PatientManagement) getPageParamsFromQuery(r *http.Request) (*models.PageInfo, error) {
+	pageStr := r.FormValue("page")
+	pageSizeStr := r.FormValue("pageSize")
+
+	if pageStr == "" || pageSizeStr == "" {
+		return nil, models.ErrPageParamsRequired
+	}
+	page, err := strconv.Atoi(pageStr)
+	pageSize, err := strconv.Atoi(pageSizeStr)
+	if err != nil {
+		return nil, models.ErrInvalidPageParams
+	}
+	return &models.PageInfo{
+		Page:     page,
+		PageSize: pageSize,
+	}, nil
 }

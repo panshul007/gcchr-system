@@ -20,6 +20,8 @@ const (
 	ErrRememberTokenTooShort privateError = "models: remember token should be at least 32 bytes"
 	ErrRememberTokenRequired privateError = "models: remember token is required"
 	ErrUserIDRequired        privateError = "models: user ID is required"
+	ErrPageParamsRequired    privateError = "models: page query params, page & pageSize required"
+	ErrInvalidPageParams     privateError = "models: invalid page query params"
 
 	// Patient Errors
 	ErrPatientNameRequired modelError = "models: patient name is required"
