@@ -1,14 +1,14 @@
 package controllers
 
 import (
-	"core/context"
-	"core/models"
-	"core/views"
+	"gcchr-system/core/context"
+	"gcchr-system/core/models"
+	"gcchr-system/core/views"
 	"net/http"
 	"time"
 
-	"core/rand"
 	"fmt"
+	"gcchr-system/core/rand"
 
 	"github.com/Sirupsen/logrus"
 )

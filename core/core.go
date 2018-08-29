@@ -1,11 +1,11 @@
 package main
 
 import (
-	"core/controllers"
-	"core/middleware"
-	"core/models"
 	"flag"
 	"fmt"
+	"gcchr-system/core/controllers"
+	"gcchr-system/core/middleware"
+	"gcchr-system/core/models"
 	"net/http"
 
 	"github.com/gorilla/mux"

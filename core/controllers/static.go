@@ -1,6 +1,6 @@
 package controllers
 
-import "core/views"
+import "gcchr-system/core/views"
 
 type Static struct {
 	Home    *views.View

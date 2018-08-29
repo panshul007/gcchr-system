@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"core/context"
-	"core/models"
+	"gcchr-system/core/context"
+	"gcchr-system/core/models"
 	"net/http"
 	"strings"
 )

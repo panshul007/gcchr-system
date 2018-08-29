@@ -2,8 +2,8 @@ package views
 
 import (
 	"bytes"
-	"core/context"
 	"errors"
+	"gcchr-system/core/context"
 	"html/template"
 	"io"
 	"net/http"

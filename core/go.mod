@@ -1,4 +1,4 @@
-module core
+module gcchr-system/core
 
 require (
 	github.com/Sirupsen/logrus v1.0.6
