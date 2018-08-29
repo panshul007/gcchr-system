@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"gcchr-system/core/models"
+	"core/models"
 )
 
 const (

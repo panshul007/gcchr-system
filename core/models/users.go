@@ -3,12 +3,12 @@ package models
 import (
 	"time"
 
-	"gcchr-system/core/hash"
+	"core/hash"
 	"regexp"
 
 	"strings"
 
-	"gcchr-system/core/rand"
+	"core/rand"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/globalsign/mgo"

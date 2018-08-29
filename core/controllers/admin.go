@@ -1,11 +1,11 @@
 package controllers
 
 import (
-	"gcchr-system/core/views"
+	"core/views"
 
 	"net/http"
 
-	"gcchr-system/core/models"
+	"core/models"
 
 	"github.com/Sirupsen/logrus"
 )

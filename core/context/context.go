@@ -2,7 +2,7 @@ package context
 
 import (
 	"context"
-	"gcchr-system/core/models"
+	"core/models"
 )
 
 const (
